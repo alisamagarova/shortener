@@ -72,7 +72,12 @@ def create_link(payload: LinkCreateRequest, db: Session = Depends(get_db)):
 
     result = get_or_create_link(db, payload.original_url)
 
-    response = LinkResponse.model_validate(result.link)
+    response = LinkResponse(
+        id=result.link.id,
+        shortCode=result.link.code,
+        originalUrl=result.link.original_url,
+        createdAt=result.link.created_at,
+    )
     status_code = 201 if result.created else 200
     return _json_response(response, status_code)
 

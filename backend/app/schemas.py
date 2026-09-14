@@ -15,7 +15,7 @@ class LinkResponse(BaseModel):
     original_url: str = Field(alias="originalUrl")
     created_at: datetime = Field(alias="createdAt")
 
-    model_config = ConfigDict(populate_by_name=True, from_attributes=True)
+    model_config = ConfigDict(populate_by_name=True)
 
 
 class ErrorResponse(BaseModel):
