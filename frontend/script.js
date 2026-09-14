@@ -59,15 +59,40 @@ form.addEventListener("submit", async (event) => {
   }
 });
 
-copyBtn.addEventListener("click", async () => {
+async function copyText(text) {
+  if (navigator.clipboard && window.isSecureContext) {
+    await navigator.clipboard.writeText(text);
+    return;
+  }
+
+  // navigator.clipboard недоступен вне secure context (например, http:// без TLS) —
+  // используем запасной вариант через скрытый textarea.
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.style.position = "fixed";
+  textarea.style.opacity = "0";
+  document.body.appendChild(textarea);
+  textarea.focus();
+  textarea.select();
   try {
-    await navigator.clipboard.writeText(resultLink.href);
-    const original = copyBtn.textContent;
+    if (!document.execCommand("copy")) {
+      throw new Error("execCommand('copy') failed");
+    }
+  } finally {
+    document.body.removeChild(textarea);
+  }
+}
+
+copyBtn.addEventListener("click", async () => {
+  const original = copyBtn.textContent;
+  try {
+    await copyText(resultLink.href);
     copyBtn.textContent = "Скопировано!";
+  } catch (err) {
+    copyBtn.textContent = "Не удалось скопировать";
+  } finally {
     setTimeout(() => {
       copyBtn.textContent = original;
     }, 1500);
-  } catch (err) {
-    // clipboard API недоступен (например, без HTTPS) — молча игнорируем
   }
 });
