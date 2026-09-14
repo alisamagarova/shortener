@@ -177,10 +177,11 @@ docker compose up --build
 ```
 
 - Frontend: http://localhost:3000
-- Backend API: http://localhost:8000/api/v1
-- PostgreSQL: localhost:5432
+- Backend API: доступен через frontend по адресу http://localhost:3000/api/v1 (nginx проксирует `/api/` на backend внутри docker-сети — backend и PostgreSQL наружу порты не публикуют)
 
-Инструкция по деплою на одну ВМ в Яндекс.Облаке (Compute Cloud) — в [DEPLOY.md](DEPLOY.md).
+Для прямого доступа к backend/PostgreSQL с хоста (например, для отладки) временно добавьте `ports` в `docker-compose.override.yml` или используйте `docker compose exec db psql ...`.
+
+Инструкция по деплою на одну ВМ в Яндекс.Облаке (Compute Cloud) — в [DEPLOY.md](DEPLOY.md). Также можно развернуть через [Coolify](https://coolify.io/) как Docker Compose-приложение из этого же репозитория.
 
 ## API
 
