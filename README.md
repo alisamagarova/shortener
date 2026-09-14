@@ -180,6 +180,8 @@ docker compose up --build
 - Backend API: http://localhost:8000/api/v1
 - PostgreSQL: localhost:5432
 
+Инструкция по деплою на одну ВМ в Яндекс.Облаке (Compute Cloud) — в [DEPLOY.md](DEPLOY.md).
+
 ## API
 
 Полная спецификация — в [api/links.json](api/links.json). Базовый префикс backend: `/api/v1`.
