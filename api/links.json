@@ -1,86 +1,109 @@
 {
-  "openapi": "3.0.0",
-  "info": {
-    "title": "URL Shortener API",
-    "version": "1.0.0"
-  },
-  "servers": [
-    { "url": "https://short.example.com/api/v1" }
-  ],
-  "paths": {
-    "/links": {
-      "post": {
-        "summary": "Укоротить оригинальную ссылку",
-        "tags": ["Links"],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "originalUrl": {
-                    "type": "string",
-                    "format": "uri",
-                    "description": "Оригинальная (длинная) ссылка"
-                  }
-                },
-                "required": ["originalUrl"]
-              }
-            }
-          }
-        },
-        "responses": {
-          "201": {
-            "description": "Короткая ссылка создана",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "id": { "type": "integer" },
-                    "shortCode": { "type": "string" },
-                    "originalUrl": { "type": "string", "format": "uri" },
-                    "createdAt": { "type": "string", "format": "date-time" }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Невалидный URL"
-          }
-        }
-      }
+    "openapi": "3.0.0",
+    "info": {
+        "title": "URL Shortener API",
+        "version": "1.0.0"
     },
-    "/{code}":{
-        "get":{
-            "summary": "Получить ссылку",
-            "tags": ["Links"],
-            "parameters":[
-                {
-                    "name": "code",
-                    "in": "path",
-                    "required": true, 
-                    "description": "код ссылки",
-                    "schema": {"type": "string"}
-                }
-            ],
-            "responses":{
-                "302":{
-                "description": "Редирект на оригинальную ссылку",
-                "headers": {
-                    "Location": {
-                        "description": "Адрес оригинальной ссылки",
-                        "schema": {"type": "string", "format": "uri"}
-                            }
-                         }
-                     },
-                     "404":{
-                        "description": "Ссылка не найдена"
-                     }
-          }
+    "servers": [
+        {
+            "url": "https://short.example.com/api/v1"
         }
-      }
+    ],
+    "paths": {
+        "/links": {
+            "post": {
+                "summary": "Укоротить оригинальную ссылку",
+                "tags": [
+                    "Links"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "originalUrl": {
+                                        "type": "string",
+                                        "format": "uri",
+                                        "description": "Оригинальная (длинная) ссылка"
+                                    }
+                                },
+                                "required": [
+                                    "originalUrl"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Короткая ссылка создана",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer"
+                                        },
+                                        "shortCode": {
+                                            "type": "string"
+                                        },
+                                        "originalUrl": {
+                                            "type": "string",
+                                            "format": "uri"
+                                        },
+                                        "createdAt": {
+                                            "type": "string",
+                                            "format": "date-time"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Невалидный URL"
+                    }
+                }
+            }
+        },
+        "/{code}": {
+            "get": {
+                "summary": "Получить ссылку",
+                "tags": [
+                    "Links"
+                ],
+                "parameters": [
+                    {
+                        "name": "code",
+                        "in": "path",
+                        "required": true,
+                        "description": "код ссылки",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "302": {
+                        "description": "Редирект на оригинальную ссылку",
+                        "headers": {
+                            "Location": {
+                                "description": "Адрес оригинальной ссылки",
+                                "schema": {
+                                    "type": "string",
+                                    "format": "uri"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Ссылка не найдена"
+                    }
+                }
+            }
+        }
     }
-  }
+}

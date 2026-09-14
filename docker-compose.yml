@@ -1,0 +1,46 @@
+services:
+  db:
+    image: postgres:15
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-shortener}
+      POSTGRES_USER: ${POSTGRES_USER:-shortener}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-shortener}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-shortener}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-shortener}:${POSTGRES_PASSWORD:-shortener}@db:5432/${POSTGRES_DB:-shortener}
+      MAX_URL_LENGTH: ${MAX_URL_LENGTH:-2048}
+      CODE_LENGTH: ${CODE_LENGTH:-7}
+      CACHE_MAX_SIZE: ${CACHE_MAX_SIZE:-1000}
+      RATE_LIMIT_CREATE_PER_MINUTE: ${RATE_LIMIT_CREATE_PER_MINUTE:-20}
+      RATE_LIMIT_REDIRECT_PER_MINUTE: ${RATE_LIMIT_REDIRECT_PER_MINUTE:-300}
+      API_PREFIX: ${API_PREFIX:-/api/v1}
+      CORS_ORIGINS: ${CORS_ORIGINS:-*}
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+
+  frontend:
+    build: ./frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "3000:80"
+
+volumes:
+  db_data:
