@@ -1,0 +1,70 @@
+x-backend-common: &backend-common
+  build: ./backend
+  restart: unless-stopped
+  environment:
+    DATABASE_URL: postgresql://${POSTGRES_USER:-shortener}:${POSTGRES_PASSWORD:-shortener}@db:5432/${POSTGRES_DB:-shortener}
+    REDIS_URL: redis://redis:6379/0
+    MAX_URL_LENGTH: ${MAX_URL_LENGTH:-2048}
+    CODE_LENGTH: ${CODE_LENGTH:-7}
+    RATE_LIMIT_CREATE_PER_MINUTE: ${RATE_LIMIT_CREATE_PER_MINUTE:-20}
+    RATE_LIMIT_REDIRECT_PER_MINUTE: ${RATE_LIMIT_REDIRECT_PER_MINUTE:-300}
+    API_PREFIX: ${API_PREFIX:-/api/v1}
+    CORS_ORIGINS: ${CORS_ORIGINS:-*}
+  depends_on:
+    db:
+      condition: service_healthy
+    redis:
+      condition: service_healthy
+
+services:
+  db:
+    image: postgres:15
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-shortener}
+      POSTGRES_USER: ${POSTGRES_USER:-shortener}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-shortener}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-shortener}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--maxmemory", "${REDIS_MAXMEMORY:-64mb}", "--maxmemory-policy", "allkeys-lru"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # Две реплики backend за балансировщиком (lb) — общее состояние (кэш,
+  # rate limiter) в Redis, поэтому реплики можно добавлять/останавливать
+  # независимо, без потери консистентности лимитов и кэша.
+  backend1:
+    <<: *backend-common
+
+  backend2:
+    <<: *backend-common
+
+  lb:
+    build: ./lb
+    restart: unless-stopped
+    depends_on:
+      - backend1
+      - backend2
+
+  frontend:
+    build: ./frontend
+    restart: unless-stopped
+    depends_on:
+      - lb
+    ports:
+      - "${FRONTEND_PORT:-3000}:80"
+
+volumes:
+  db_data:
