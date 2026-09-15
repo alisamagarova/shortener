@@ -32,6 +32,9 @@ flowchart TB
             LOGIC["Валидация ссылки, генерация кода,<br/>редирект по короткому коду"]
             CACHE[("Cache<br/>Component: OrderedDict<br/>LRU-вытеснение · in-process, не сеть")]
             RL[("Rate Limiter<br/>Component: dict по IP<br/>20/мин создание · 300/мин редирект")]
+
+            LOGIC -.->|"проверить / сохранить originalUrl по code"| CACHE
+            LOGIC -.->|"проверить лимит по IP"| RL
         end
 
         DB[("🗄️ PostgreSQL 15<br/>Database<br/>originalUrl, code, createdAt")]
