@@ -1,5 +1,7 @@
 # shortener
 
+> Архитектура, ТЗ, диаграммы и API-спецификация — [AliceMazh](https://github.com/alisamagarova); реализация кода — Claude.
+
 Для версии без Redis и LB
 
 ФТ:
@@ -26,7 +28,8 @@ flowchart TB
     subgraph SYS["Система сокращения ссылок · MVP, без Redis и LB"]
         FE["🖥️ Frontend<br/>Container: React / HTML<br/><i>Форма создания короткой ссылки</i>"]
 
-        subgraph BE["⚙️ Backend — Container: Python / FastAPI<br/>Валидация ссылки, генерация кода, редирект по короткому коду"]
+        subgraph BE["⚙️ Backend — Container: Python / FastAPI"]
+            LOGIC["Валидация ссылки, генерация кода,<br/>редирект по короткому коду"]
             CACHE[("Cache<br/>Component: OrderedDict<br/>LRU-вытеснение · in-process, не сеть")]
             RL[("Rate Limiter<br/>Component: dict по IP<br/>20/мин создание · 300/мин редирект")]
         end
